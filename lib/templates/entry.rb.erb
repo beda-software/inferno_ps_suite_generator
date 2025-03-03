@@ -1,0 +1,47 @@
+module <%= test_kit_module_name %>
+  class <%= class_name %> < Inferno::TestGroup
+    title 'TODO title: <%= class_name %>'
+    description 'TODO description: <%= class_name %>'
+    id :<%= test_id %>
+
+    test do
+      title 'Server returns correct <%= resource_type %> resource from the <%= resource_type %> read interaction'
+      description %(
+        This test will verify that <%= resource_type %> resources can be read from the server.
+      )
+      <% if optional? %>
+      optional
+      <% end %>
+      uses_request :summary_operation
+
+      run do
+        existing_resources = resource.entry.select { |r| r.resource_type == '<%= resource_type %>' and r.meta.profile.include? '<%= profile_url %>' }
+        existing_resources.each do |r|
+          fhir_read(resource_type, r.id)
+          assert_response_status(200)
+          assert_resource_type('<%= resource_type %>')
+          assert resource.id == r.id,
+            "Requested resource with id #{r.id}, received resource with id #{resource.id}"
+        end
+      end
+    end
+
+    test do
+      title 'Server returns <%= resource_type %> resource that matches the <%= resource_type %> profile'
+      description %(
+        This test will validate that the <%= resource_type %> resource returned from the server matches the Medication (IPS) profile.
+      )
+      <% if optional? %>
+      optional
+      <% end %>
+      uses_request :summary_operation
+
+      run do
+        existing_resources = resource.entry.select { |r| r.resource_type == '<%= resource_type %>' and r.meta.profile.include? '<%= profile_url %>' }
+        existing_resources.each do |r|
+          assert_valid_resource(resource: r, profile_url: '<%= profile_url %>')
+        end
+      end
+    end
+  end
+end

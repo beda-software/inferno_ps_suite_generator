@@ -1,0 +1,34 @@
+# frozen_string_literal: true
+
+module <%= test_kit_module_name %>
+  class <%= class_name %> < Inferno::Test
+    test do
+      title '<%= title %>'
+      description '<%= description %>'
+      id :<%= test_id %>
+      <% if optional? %>
+      optional
+      <% end %>
+      uses_request :summary_operation
+
+      run do
+        composition_resource = resource.entry.find { |r| r.resource.resourceType == 'Composition' }.resource
+        current_section = composition_resource.find { |s| s.code.coding.first == '<%= section_code %>' }
+        section_entries_refs = current_section.entry.map { |e| e.reference }
+        target_resources_and_profiles = '<%= target_resources_and_profiles %>'.split(';').map do |segment|
+          resource, profiles = segment.split(':')
+          {
+            resource: resource,
+            profiles: profiles.split(',').reject(&:empty?)
+          }
+        end
+        existing_resources = section_entries_refs.map { |ref| resource.entry.find { |e| e.fullUrl == ref}}
+        filtered_existing_resources = existing_resources.select do |er|
+          target_resources_and_profiles.keys.include? er.resourceType and target_resources_and_profiles.profiles.any? { |element| r.meta.profile.include?(element) }
+        end
+
+        assert section_entries_refs.length == filtered_existing_resources.length, "TODO: Incorrect number of entries"
+      end
+    end
+  end
+end
