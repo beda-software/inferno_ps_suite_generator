@@ -45,8 +45,12 @@ module InfernoPsSuiteGenerator
         File.join(output_file_directory, 'metadata.yaml')
       end
 
+      def title
+        group_metadata[:title]
+      end
+
       def profile_identifier
-        Naming.snake_case_for_profile(group_metadata)
+        title.gsub('(', '').gsub(')', '').gsub('/', '').gsub(' - ', ' ').gsub(' ', '_').downcase
       end
 
       def test_kit_module_name
@@ -58,7 +62,7 @@ module InfernoPsSuiteGenerator
       end
 
       def class_name
-        "#{Naming.upper_camel_case_for_profile(group_metadata)}EntryTest"
+        "#{profile_identifier.split('_').map(&:capitalize).join}EntryTest"
       end
 
       def module_name

@@ -10,6 +10,7 @@ require_relative 'inferno_ps_suite_generator/entry_test'
 require_relative 'inferno_ps_suite_generator/composition_section'
 require_relative 'inferno_ps_suite_generator/group_generator'
 require_relative 'inferno_ps_suite_generator/static_test_generator'
+require_relative 'inferno_ps_suite_generator/suite_generator'
 
 module InfernoPsSuiteGenerator
   class Generator
@@ -30,13 +31,14 @@ module InfernoPsSuiteGenerator
 
     def generate
       puts "Generating tests for IG #{File.basename(ig_file_name)}"
+      group_data = []
       load_ig_package
       metadata = extract_metadata
       StaticTestGenerator.generate(
         suite_config,
         {
-          title: 'IPS Server declares support for $summary operation in CapabilityStatement',
-          description: 'The IPS Server declares support for Patient/[id]/$summary operation in its server CapabilityStatement',
+          title: 'Server declares support for $summary operation in CapabilityStatement',
+          description: 'The Server declares support for Patient/[id]/$summary operation in its server CapabilityStatement',
           template: 'summary_operation_support.rb.erb',
           file_name: 'au_ps_summary_operation_support',
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
@@ -50,8 +52,8 @@ module InfernoPsSuiteGenerator
       StaticTestGenerator.generate(
         suite_config,
         {
-          title: 'IPS Server returns Bundle resource for Patient/[id]/$summary GET operation',
-          description: 'IPS Server returns a valid IPS Bundle resource as successful result of $summary operation.',
+          title: 'Server returns Bundle resource for Patient/[id]/$summary GET operation',
+          description: 'Server returns a valid Bundle resource as successful result of $summary operation.',
           template: 'summary_operation_return_bundle.rb.erb',
           file_name: 'au_ps_summary_operation_return_bundle',
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
@@ -65,8 +67,8 @@ module InfernoPsSuiteGenerator
       StaticTestGenerator.generate(
         suite_config,
         {
-          title: 'IPS Server returns Bundle resource containing valid IPS Composition entry',
-          description: 'IPS Server return valid IPS Composition resource in the Bundle as first entry',
+          title: 'Server returns Bundle resource containing valid Composition entry',
+          description: 'Server return valid Composition resource in the Bundle as first entry',
           template: 'summary_operation_valid_composition.rb.erb',
           file_name: 'au_ps_summary_operation_valid_composition',
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
@@ -81,7 +83,7 @@ module InfernoPsSuiteGenerator
       StaticTestGenerator.generate(
         suite_config,
         {
-          title: 'IPS Server declares support for $docref operation in CapabilityStatement',
+          title: 'Server declares support for $docref operation in CapabilityStatement',
           description: 'The IPS Server declares support for DocumentReference/$docref operation in its server CapabilityStatement',
           template: 'docref_operation_support.rb.erb',
           file_name: 'au_ps_docref_operation_support',
@@ -109,11 +111,11 @@ module InfernoPsSuiteGenerator
         }
       )
       EntryTestGenerator.generate(metadata, suite_config[:output_path], suite_config)
-      GroupGenerator.generate(
+      group_data << GroupGenerator.generate(
         suite_config,
         {
-          title: 'Summary title',
-          description: 'Summary description',
+          title: '$summary Operation Tests',
+          description: 'Verify support for the $summary operation as as described in the AU PS Guidance',
           template: 'summary_operation_group.rb.erb',
           file_name: 'au_ps_summary_operation_group',
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
@@ -123,11 +125,11 @@ module InfernoPsSuiteGenerator
           module_name: suite_config[:test_kit_module_name]
         }
       )
-      GroupGenerator.generate(
+      group_data << GroupGenerator.generate(
         suite_config,
         {
-          title: 'Entries title',
-          description: 'Entries description',
+          title: '$summary Entries Tests',
+          description: 'A set of tests to check entries from $summary for read action and validate them according to profile specified in the AU PS Implementation Guide',
           template: 'summary_operation_group.rb.erb',
           file_name: 'au_ps_entries_group',
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
@@ -138,17 +140,32 @@ module InfernoPsSuiteGenerator
           entries_is_group: true
         }
       )
-      GroupGenerator.generate(
+      group_data << GroupGenerator.generate(
         suite_config,
         {
-          title: 'DocRef Operation Tests',
-          description: 'erify support for the $docref operation as as described in the AU PS Guidance',
+          title: '$docref Operation Tests',
+          description: 'Verify support for the $docref operation as as described in the AU PS Guidance',
           template: 'summary_operation_group.rb.erb',
           file_name: 'au_ps_docref_group',
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
                                            'docref_operation_group'),
           class_name: 'DocRefOperation',
           group_id: 'au_ps_docref_operation_group',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
+
+      SuiteGenerator.generate(
+        suite_config,
+        {
+          title: 'AU PS Inferno Suite',
+          description: 'AU PS Infenro Suite consist of $summary tests, $summary entries tests and $docref tests',
+          template: 'suite.rb.erb',
+          file_name: 'au_ps_suite',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version]),
+          suite_id: 'au_ps_suite',
+          group_data: group_data,
+          igs_str: suite_config[:igs],
           module_name: suite_config[:test_kit_module_name]
         }
       )
@@ -196,6 +213,10 @@ module InfernoPsSuiteGenerator
       end
     end
 
+    def find_sd_by_profile(profile_url)
+      ig_resources.resources_by_type['StructureDefinition'].find { |sd| sd.url == profile_url }
+    end
+
     def extract_metadata
       composition_metadata = extract_composition_metadata(ig_resources.resources_by_type['StructureDefinition'].find do |entry|
         entry.type == 'Composition'
@@ -214,10 +235,14 @@ module InfernoPsSuiteGenerator
         resource_element = bundle_structure_definition_all_elements.find { |element| element.id == resource_element_id }
 
         resource_type = resource_element.type.first.code
+        current_profile = resource_element.type.first.profile.first
+        current_sd = find_sd_by_profile(current_profile)
+        title = current_sd.title if current_sd && current_profile
 
         result = {
+          title: title || resource_type,
           resource_type: resource_type,
-          resource_profile: resource_element.type.first.profile.first,
+          resource_profile: current_profile,
           min: resource_element_base.min,
           max: resource_element_base.max
         }

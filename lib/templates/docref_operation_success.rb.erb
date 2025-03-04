@@ -6,6 +6,8 @@ module <%= test_kit_module_name %>
     description '<%= description %>'
     id :<%= test_id %>
 
+    input :patient_id
+
     run do
       parameters = FHIR::Parameters.new(
         parameter: [

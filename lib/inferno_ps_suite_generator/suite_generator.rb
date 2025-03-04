@@ -6,7 +6,7 @@ require_relative 'naming'
 
 module InfernoPsSuiteGenerator
   class Generator
-    class GroupGenerator
+    class SuiteGenerator
       class << self
         def generate(suite_config, group_config)
           new(suite_config, group_config).generate
@@ -60,8 +60,12 @@ module InfernoPsSuiteGenerator
         group_config[:description]
       end
 
+      def suite_id
+        group_config[:suite_id]
+      end
+
       def test_list
-        YAML.load_file(output_test_list_file_name) || []
+        group_config[:group_data]
       end
 
       def test_list_ids
@@ -73,21 +77,20 @@ module InfernoPsSuiteGenerator
       end
 
       def test_list_file_names
-        test_list.map { |item| item[:file_name].split('/').last.split('.').first }
+        test_list.map { |item| item[:file_name] }
       end
 
       def entries_is_group
         group_config[:entries_is_group] == true
       end
 
+      def igs_str
+        group_config[:igs_str]
+      end
+
       def generate
         FileUtils.mkdir_p(output_file_directory)
         File.open(output_file_name, 'w') { |f| f.write(output) }
-
-        {
-          test_id: group_id,
-          file_name: ".#{output_file_name.split(suite_config[:version]).last.split('.rb').first}"
-        }
       end
     end
   end

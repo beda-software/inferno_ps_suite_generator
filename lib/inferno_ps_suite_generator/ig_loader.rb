@@ -55,12 +55,14 @@ module InfernoPsSuiteGenerator
         end
         json_files = Dir.glob(File.join(Dir.pwd, 'lib', suite_config[:gem_name], 'igs', '*.json'))
         json_files.each do |file_path|
-          puts file_path
           file_content = File.read(file_path)
-          bundle = FHIR.from_contents(file_content)
-          bundle.entry.each do |entry|
-            puts "ENTRY IS: #{entry}"
-            ig_resources.add(entry.resource)
+          resource = FHIR.from_contents(file_content)
+          if resource.is_a?(FHIR::Bundle)
+            resource.entry.each do |entry|
+              ig_resources.add(entry.resource)
+            end
+          else
+            ig_resources.add(resource)
           end
         end
         ig_resources

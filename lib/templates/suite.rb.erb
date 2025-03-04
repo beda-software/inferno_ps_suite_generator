@@ -1,0 +1,34 @@
+# frozen_string_literal: true
+
+<% test_list_file_names.each do |test_name| %>
+require_relative '<%= test_name %>'
+<%  end %>
+
+module <%= module_name %>
+  class Suite < Inferno::TestSuite
+    id :<%= suite_id %>
+    title '<%= title %>'
+    description '<%= description %>'
+
+    input :url,
+          title: 'FHIR Server Base Url'
+
+    input :credentials,
+          title: 'OAuth Credentials',
+          type: :oauth_credentials,
+          optional: true
+
+    fhir_client do
+      url :url
+      oauth_credentials :credentials
+    end
+
+    fhir_resource_validator do
+      igs '<%= igs_str %>'
+    end
+
+    <% test_list_ids.each do |test_id| %>
+    group from: :<%= test_id %>
+    <%  end %>
+  end
+end

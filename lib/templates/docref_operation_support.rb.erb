@@ -21,7 +21,7 @@ module <%= test_kit_module_name %>
         operation.definition == '<%= profile_url %>' || 'docref' == operation.name.downcase
       end
 
-      assert operation_defined, 'Server CapabilityStatement did not declare support for $docref operation in DocumentReference resource.'   run do
+      assert operation_defined, 'Server CapabilityStatement did not declare support for $docref operation in DocumentReference resource.'
     end
   end
 end
