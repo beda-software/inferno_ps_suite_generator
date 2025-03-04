@@ -5,19 +5,17 @@ require_relative 'lib/inferno_ps_suite_generator/version'
 Gem::Specification.new do |spec|
   spec.name = 'inferno_ps_suite_generator'
   spec.version = InfernoPsSuiteGenerator::VERSION
-  spec.authors = ['nvim']
-  spec.email = ['prozskov@gmail.com']
+  spec.authors = ['Pavel Rozhkov', 'Ilya Beda']
+  spec.email = ['pavel.r@beda.software', 'ilya@beda.software']
 
-  spec.summary = '123'
-  spec.description = '123'
-  spec.homepage = 'http://test.com'
+  spec.summary = 'Generates Inferno Suite to check $summary and $docref operations'
+  spec.description = 'Generates Inferno Suite to check $summary and $docref operations'
+  spec.homepage = 'https://github.com/beda-software/inferno_ps_suite_generator'
   spec.required_ruby_version = '>= 3.1.0'
 
-  spec.metadata['allowed_push_host'] = 'http://test.com'
-
   spec.metadata['homepage_uri'] = spec.homepage
-  spec.metadata['source_code_uri'] = 'http://test.com'
-  spec.metadata['changelog_uri'] = 'http://test.com'
+  spec.metadata['source_code_uri'] = spec.homepage
+  spec.metadata['changelog_uri'] = spec.homepage
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
