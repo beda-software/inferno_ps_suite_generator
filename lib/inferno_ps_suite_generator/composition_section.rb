@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'yaml'
+
 require_relative 'naming'
 
 module InfernoPsSuiteGenerator
@@ -42,6 +44,10 @@ module InfernoPsSuiteGenerator
         File.join(output_file_directory, base_output_file_name)
       end
 
+      def output_test_list_file_name
+        File.join(output_file_directory, 'metadata.yaml')
+      end
+
       def profile_identifier
         'composition'
       end
@@ -51,11 +57,12 @@ module InfernoPsSuiteGenerator
       end
 
       def test_id
-        "#{suite_config[:test_id_prefix]}_#{profile_identifier}_composition_section_test"
+        "#{suite_config[:test_id_prefix]}_#{group_metadata[:title].gsub(' ',
+                                                                        '_').downcase}_#{profile_identifier}_section_test"
       end
 
       def class_name
-        "#{group_metadata[:title].gsub(' ', '')}CompositionSectionTest"
+        "#{suite_config[:test_suite_class_name]}#{group_metadata[:title].gsub(' ', '')}CompositionSectionTest"
       end
 
       def module_name
@@ -88,13 +95,21 @@ module InfernoPsSuiteGenerator
 
       def target_resources_and_profiles
         group_metadata[:entries].map do |entry|
-          "#{entry[:resource_type]}:#{entry[:profile]}"
+          "#{entry[:resource_type]}::#{entry[:profile]}"
         end.join(';')
       end
 
       def generate
         FileUtils.mkdir_p(output_file_directory)
         File.open(output_file_name, 'w') { |f| f.write(output) }
+
+        data = File.exist?(output_test_list_file_name) ? YAML.load_file(output_test_list_file_name) || [] : []
+        data = [] unless data.is_a?(Array)
+        data << {
+          test_id: test_id,
+          file_name: output_file_name
+        }
+        File.open(output_test_list_file_name, 'w') { |file| file.write(data.to_yaml) }
 
         # group_metadata.add_test(
         #   id: test_id,

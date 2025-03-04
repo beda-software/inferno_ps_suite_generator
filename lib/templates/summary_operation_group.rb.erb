@@ -1,0 +1,21 @@
+<% test_list_file_names.each do |test_name| %>
+require_relative './<%= test_name %>'
+<%  end %>
+
+module <%= module_name %>
+  class <%= class_name %> < Inferno::TestGroup
+    title '<%= title %>'
+    description '<%= description %>'
+    id :<%= group_id %>
+    run_as_group
+
+    <% test_list_ids.each do |test_id| %>
+    <% if entries_is_group %>
+    group from: :<%= test_id %>
+    <% else %>
+    test from: :<%= test_id %>
+    <% end %>
+    <%  end %>
+
+  end
+end

@@ -2,33 +2,44 @@
 
 module <%= test_kit_module_name %>
   class <%= class_name %> < Inferno::Test
-    test do
-      title '<%= title %>'
-      description '<%= description %>'
-      id :<%= test_id %>
-      <% if optional? %>
-      optional
-      <% end %>
-      uses_request :summary_operation
+    title '<%= title %>'
+    description '<%= description %>'
+    id :<%= test_id %>
+    <% if optional? %>
+    optional
+    <% end %>
+    uses_request :summary_operation
 
-      run do
-        composition_resource = resource.entry.find { |r| r.resource.resourceType == 'Composition' }.resource
-        current_section = composition_resource.find { |s| s.code.coding.first == '<%= section_code %>' }
-        section_entries_refs = current_section.entry.map { |e| e.reference }
-        target_resources_and_profiles = '<%= target_resources_and_profiles %>'.split(';').map do |segment|
-          resource, profiles = segment.split(':')
-          {
-            resource: resource,
-            profiles: profiles.split(',').reject(&:empty?)
-          }
-        end
-        existing_resources = section_entries_refs.map { |ref| resource.entry.find { |e| e.fullUrl == ref}}
-        filtered_existing_resources = existing_resources.select do |er|
-          target_resources_and_profiles.keys.include? er.resourceType and target_resources_and_profiles.profiles.any? { |element| r.meta.profile.include?(element) }
-        end
+    run do
+      composition_entry = resource.entry.find { |r| r.resource.resourceType == 'Composition' }
+      return unless composition_entry # Ensure a Composition exists
 
-        assert section_entries_refs.length == filtered_existing_resources.length, "TODO: Incorrect number of entries"
+      composition_resource = composition_entry.resource
+      current_section = composition_resource.section.find { |s| s.code.coding.first.code == '<%= section_code %>' }
+      return unless current_section && current_section.entry # Ensure section and entries exist
+
+      section_entries_refs = current_section.entry.map { |e| e.reference }
+      target_resources_and_profiles = '<%= target_resources_and_profiles %>'.split(';').map do |segment|
+        resource, profiles = segment.split('::')
+        {
+          resource: resource,
+          profiles: profiles&.split(',')&.reject(&:empty?) || []
+        }
       end
+
+      existing_resources = section_entries_refs.map { |ref| resource.entry.find { |e| e.fullUrl == ref } }.compact
+
+      filtered_existing_resources = existing_resources.select do |er|
+        target_resource = target_resources_and_profiles.find { |trp| trp[:resource] == er.resource.resourceType }
+        target_resource && target_resource[:profiles].any? { |profile| er.resource.meta&.profile&.include?(profile) }
+      end
+
+      info "#{section_entries_refs}"
+      info "#{target_resources_and_profiles}"
+      info "#{existing_resources}"
+      info "#{filtered_existing_resources}"
+
+      assert section_entries_refs.length == filtered_existing_resources.length, "TODO: Incorrect number of entries"
     end
   end
 end

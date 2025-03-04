@@ -4,25 +4,22 @@ require_relative 'naming'
 
 module InfernoPsSuiteGenerator
   class Generator
-    class EntryTestGenerator
+    class StaticTestGenerator
       class << self
-        def generate(ig_metadata, base_output_dir, suite_config)
-          ig_metadata.reject { |entry_data| entry_data[:resource_type] == 'Composition' }.each do |entry_data|
-            new(entry_data, base_output_dir, suite_config).generate
-          end
+        def generate(suite_config, test_config)
+          new(suite_config, test_config).generate
         end
       end
 
-      attr_accessor :group_metadata, :base_output_dir, :suite_config
+      attr_accessor :suite_config, :test_config
 
-      def initialize(group_metadata, base_output_dir, suite_config)
-        self.group_metadata = group_metadata
-        self.base_output_dir = base_output_dir
+      def initialize(suite_config, test_config)
         self.suite_config = suite_config
+        self.test_config = test_config
       end
 
       def template
-        @template ||= File.read(File.join(__dir__, '..', 'templates', 'entry.rb.erb'))
+        @template ||= File.read(File.join(__dir__, '..', 'templates', test_config[:template]))
       end
 
       def output
@@ -34,7 +31,7 @@ module InfernoPsSuiteGenerator
       end
 
       def output_file_directory
-        File.join(base_output_dir, 'generated', suite_config[:version], 'entries_group')
+        test_config[:output_file_directory]
       end
 
       def output_file_name
@@ -45,36 +42,32 @@ module InfernoPsSuiteGenerator
         File.join(output_file_directory, 'metadata.yaml')
       end
 
-      def profile_identifier
-        Naming.snake_case_for_profile(group_metadata)
-      end
-
       def test_kit_module_name
         suite_config[:test_kit_module_name]
       end
 
       def test_id
-        "#{suite_config[:test_id_prefix]}_#{profile_identifier}_entry_test"
+        test_config[:test_id]
       end
 
       def class_name
-        "#{Naming.upper_camel_case_for_profile(group_metadata)}EntryTest"
+        test_config[:class_name]
       end
 
       def module_name
-        "#{suite_config[:test_module_name]}#{group_metadata.reformatted_version.upcase}"
-      end
-
-      def resource_type
-        group_metadata[:resource_type]
-      end
-
-      def optional?
-        group_metadata[:min].zero?
+        test_config[:module_name]
       end
 
       def profile_url
-        group_metadata[:resource_profile]
+        test_config[:profile_url]
+      end
+
+      def title
+        test_config[:title]
+      end
+
+      def description
+        test_config[:description]
       end
 
       def generate
@@ -88,10 +81,6 @@ module InfernoPsSuiteGenerator
           file_name: output_file_name
         }
         File.open(output_test_list_file_name, 'w') { |file| file.write(data.to_yaml) }
-        # group_metadata.add_test(
-        #   id: test_id,
-        #   file_name: base_output_file_name
-        # )
       end
     end
   end

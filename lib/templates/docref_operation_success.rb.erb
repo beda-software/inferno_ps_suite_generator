@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+module <%= test_kit_module_name %>
+  class <%= class_name %> < Inferno::Test
+    title '<%= title %>'
+    description '<%= description %>'
+    id :<%= test_id %>
+
+    run do
+      parameters = FHIR::Parameters.new(
+        parameter: [
+          {
+            name: 'patient',
+            valueId: patient_id
+          }
+        ]
+      )
+      fhir_operation("/DocumentReference/$docref", body: parameters)
+      assert_response_status(200)
+    end
+  end
+end

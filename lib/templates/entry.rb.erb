@@ -15,14 +15,21 @@ module <%= test_kit_module_name %>
       uses_request :summary_operation
 
       run do
-        existing_resources = resource.entry.select { |r| r.resource_type == '<%= resource_type %>' and r.meta.profile.include? '<%= profile_url %>' }
+        initial_bundle = resource
+        existing_resources = initial_bundle.entry.map(&:resource).select do |r|
+          r.resourceType == '<%= resource_type %>' && r.meta&.profile&.include?('<%= profile_url %>')
+        end
+
+        skip_if existing_resources.empty?, "No existing resources of type '<%= resource_type %>' with profile '<%= profile_url %>' found."
+
         existing_resources.each do |r|
-          fhir_read(resource_type, r.id)
+          fhir_read('<%= resource_type %>', r.id)
           assert_response_status(200)
           assert_resource_type('<%= resource_type %>')
+
           assert resource.id == r.id,
             "Requested resource with id #{r.id}, received resource with id #{resource.id}"
-        end
+       end
       end
     end
 
@@ -37,7 +44,13 @@ module <%= test_kit_module_name %>
       uses_request :summary_operation
 
       run do
-        existing_resources = resource.entry.select { |r| r.resource_type == '<%= resource_type %>' and r.meta.profile.include? '<%= profile_url %>' }
+        initial_bundle = resource
+        existing_resources = initial_bundle.entry.map(&:resource).select do |r|
+          r.resourceType == '<%= resource_type %>' && r.meta&.profile&.include?('<%= profile_url %>')
+        end
+
+        skip_if existing_resources.empty?, "No existing resources of type '<%= resource_type %>' with profile '<%= profile_url %>' found."
+
         existing_resources.each do |r|
           assert_valid_resource(resource: r, profile_url: '<%= profile_url %>')
         end

@@ -2,11 +2,14 @@
 
 require 'yaml'
 require 'fileutils'
+require 'ostruct'
 
 require_relative 'inferno_ps_suite_generator/version'
 require_relative 'inferno_ps_suite_generator/ig_loader'
 require_relative 'inferno_ps_suite_generator/entry_test'
-require_relative 'inferno_ps_suite_generator/composition_section.rb'
+require_relative 'inferno_ps_suite_generator/composition_section'
+require_relative 'inferno_ps_suite_generator/group_generator'
+require_relative 'inferno_ps_suite_generator/static_test_generator'
 
 module InfernoPsSuiteGenerator
   class Generator
@@ -29,8 +32,126 @@ module InfernoPsSuiteGenerator
       puts "Generating tests for IG #{File.basename(ig_file_name)}"
       load_ig_package
       metadata = extract_metadata
+      StaticTestGenerator.generate(
+        suite_config,
+        {
+          title: 'IPS Server declares support for $summary operation in CapabilityStatement',
+          description: 'The IPS Server declares support for Patient/[id]/$summary operation in its server CapabilityStatement',
+          template: 'summary_operation_support.rb.erb',
+          file_name: 'au_ps_summary_operation_support',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'summary_operation_group'),
+          class_name: 'SummaryOperationSupport',
+          test_id: 'au_ps_summary_operation_support',
+          profile_url: 'http://hl7.org/fhir/uv/ips/OperationDefinition/summary',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
+      StaticTestGenerator.generate(
+        suite_config,
+        {
+          title: 'IPS Server returns Bundle resource for Patient/[id]/$summary GET operation',
+          description: 'IPS Server returns a valid IPS Bundle resource as successful result of $summary operation.',
+          template: 'summary_operation_return_bundle.rb.erb',
+          file_name: 'au_ps_summary_operation_return_bundle',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'summary_operation_group'),
+          class_name: 'SummaryOperationReturnBundle',
+          test_id: 'au_ps_summary_operation_return_bundle',
+          profile_url: 'http://hl7.org/fhir/uv/ips/StructureDefinition/Bundle-uv-ips',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
+      StaticTestGenerator.generate(
+        suite_config,
+        {
+          title: 'IPS Server returns Bundle resource containing valid IPS Composition entry',
+          description: 'IPS Server return valid IPS Composition resource in the Bundle as first entry',
+          template: 'summary_operation_valid_composition.rb.erb',
+          file_name: 'au_ps_summary_operation_valid_composition',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'summary_operation_group'),
+          class_name: 'SummaryOperationValidComposition',
+          test_id: 'au_ps_summary_operation_valid_composition',
+          profile_url: 'http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
       CompositionSectionTestGenerator.generate(metadata, suite_config[:output_path], suite_config)
+      StaticTestGenerator.generate(
+        suite_config,
+        {
+          title: 'IPS Server declares support for $docref operation in CapabilityStatement',
+          description: 'The IPS Server declares support for DocumentReference/$docref operation in its server CapabilityStatement',
+          template: 'docref_operation_support.rb.erb',
+          file_name: 'au_ps_docref_operation_support',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'docref_operation_group'),
+          class_name: 'DocrefOperationSupport',
+          test_id: 'au_ps_docref_operation_support',
+          profile_url: 'http://hl7.org/fhir/uv/ipa/OperationDefinition/docref',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
+      StaticTestGenerator.generate(
+        suite_config,
+        {
+          title: 'Server responds successfully to a $docref operation',
+          description: 'This test creates a $docref operation request for a patient.  Note that this currently does not request an IPS bundle specifically therefore does not validate the content.',
+          template: 'docref_operation_success.rb.erb',
+          file_name: 'au_ps_docref_operation_success',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'docref_operation_group'),
+          class_name: 'DocrefOperationSuccess',
+          test_id: 'au_ps_docref_operation_success',
+          profile_url: '',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
       EntryTestGenerator.generate(metadata, suite_config[:output_path], suite_config)
+      GroupGenerator.generate(
+        suite_config,
+        {
+          title: 'Summary title',
+          description: 'Summary description',
+          template: 'summary_operation_group.rb.erb',
+          file_name: 'au_ps_summary_operation_group',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'summary_operation_group'),
+          class_name: 'SummaryOperationGroup',
+          group_id: 'au_ps_summary_operation',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
+      GroupGenerator.generate(
+        suite_config,
+        {
+          title: 'Entries title',
+          description: 'Entries description',
+          template: 'summary_operation_group.rb.erb',
+          file_name: 'au_ps_entries_group',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'entries_group'),
+          class_name: 'EntriesGroup',
+          group_id: 'au_ps_entries',
+          module_name: suite_config[:test_kit_module_name],
+          entries_is_group: true
+        }
+      )
+      GroupGenerator.generate(
+        suite_config,
+        {
+          title: 'DocRef Operation Tests',
+          description: 'erify support for the $docref operation as as described in the AU PS Guidance',
+          template: 'summary_operation_group.rb.erb',
+          file_name: 'au_ps_docref_group',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'docref_operation_group'),
+          class_name: 'DocRefOperation',
+          group_id: 'au_ps_docref_operation_group',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
     end
 
     def load_ig_package
@@ -49,7 +170,6 @@ module InfernoPsSuiteGenerator
         current_section_entry_code_element = composition_sd.snapshot.element.find do |element|
           element.id.include? "#{section_element.id}.code"
         end
-
 
         target_profiles = current_section_entry_elements.map { |el| el.type.first.targetProfile.first }
 

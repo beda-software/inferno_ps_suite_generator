@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+module <%= test_kit_module_name %>
+  class <%= class_name %> < Inferno::Test
+    title '<%= title %>'
+    description '<%= description %>'
+    id :<%= test_id %>
+
+    input :patient_id
+    makes_request :summary_operation
+
+    run do
+      fhir_operation("Patient/#{patient_id}/$summary", name: :summary_operation, operation_method: :get)
+      assert_response_status(200)
+      assert_resource_type(:bundle)
+      assert_valid_resource(profile_url: '<%= profile_url %>')
+    end
+  end
+end
