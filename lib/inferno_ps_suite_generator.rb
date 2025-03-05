@@ -118,8 +118,7 @@ module InfernoPsSuiteGenerator
                                            'entries_group'),
           class_name: 'EntriesGroup',
           group_id: 'au_ps_entries',
-          module_name: suite_config[:test_kit_module_name],
-          entries_is_group: true
+          module_name: suite_config[:test_kit_module_name]
         }
       )
     end

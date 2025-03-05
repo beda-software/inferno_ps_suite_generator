@@ -1,31 +1,27 @@
 # frozen_string_literal: true
 
 module <%= test_kit_module_name %>
-  class <%= class_name %> < Inferno::TestGroup
-    title '<%= title %>'
+  class <%= class_name %> < Inferno::Test
+    title 'Server returns <%= title %> resource that matches the <%= title %> profile'
+    description %(
+      This test will validate that the <%= title %> resource returned from the server matches the <%= title %> profile.
+    )
     id :<%= test_id %>
+    <% if optional? %>
+    optional
+    <% end %>
+    uses_request :summary_operation
 
-    test do
-      title 'Server returns <%= resource_type %> resource that matches the <%= resource_type %> profile'
-      description %(
-        This test will validate that the <%= resource_type %> resource returned from the server matches the Medication (IPS) profile.
-      )
-      <% if optional? %>
-      optional
-      <% end %>
-      uses_request :summary_operation
+    run do
+      initial_bundle = resource
+      existing_resources = initial_bundle.entry.map(&:resource).select do |r|
+        r.resourceType == '<%= resource_type %>' && r.meta&.profile&.include?('<%= profile_url %>')
+      end
 
-      run do
-        initial_bundle = resource
-        existing_resources = initial_bundle.entry.map(&:resource).select do |r|
-          r.resourceType == '<%= resource_type %>' && r.meta&.profile&.include?('<%= profile_url %>')
-        end
+      skip_if existing_resources.empty?, "No existing resources of type '<%= resource_type %>' with profile '<%= profile_url %>' found."
 
-        skip_if existing_resources.empty?, "No existing resources of type '<%= resource_type %>' with profile '<%= profile_url %>' found."
-
-        existing_resources.each do |r|
-          assert_valid_resource(resource: r, profile_url: '<%= profile_url %>')
-        end
+      existing_resources.each do |r|
+        assert_valid_resource(resource: r, profile_url: '<%= profile_url %>')
       end
     end
   end
