@@ -33,25 +33,25 @@ module InfernoPsSuiteGenerator
       puts "Generating tests for IG #{File.basename(ig_file_name)}"
       load_ig_package
       metadata = extract_metadata
-      generate_summary_operation_tests
-      generate_docref_operation_tests
+      generate_summary_operation_tests(metadata, suite_config)
+      generate_docref_operation_tests(suite_config)
       EntryTestGenerator.generate(metadata, suite_config[:output_path], suite_config)
-      generate_suite([generate_summary_operation_group, generate_summary_entries_group, generate_docref_group].flatten)
+      generate_suite(suite_config, [generate_summary_operation_group, generate_summary_entries_group, generate_docref_group].flatten)
     end
 
-    def generate_summary_operation_tests
-      generate_summary_operation_test
-      generate_summary_operation_return_bundle_test
-      generate_summary_operation_valid_composition_test
+    def generate_summary_operation_tests(metadata, suite_config)
+      generate_summary_operation_test(suite_config)
+      generate_summary_operation_return_bundle_test(suite_config)
+      generate_summary_operation_valid_composition_test(suite_config)
       CompositionSectionTestGenerator.generate(metadata, suite_config[:output_path], suite_config)
     end
 
-    def generate_docref_operation_tests
-      generate_docref_exist
-      generate_docref_success_test
+    def generate_docref_operation_tests(suite_config)
+      generate_docref_exist(suite_config)
+      generate_docref_success_test(suite_config)
     end
 
-    def generate_docref_exist
+    def generate_docref_exist(suite_config)
       StaticTestGenerator.generate(
         suite_config,
         {
@@ -69,7 +69,7 @@ module InfernoPsSuiteGenerator
       )
     end
 
-    def generate_docref_success_test
+    def generate_docref_success_test(suite_config)
       StaticTestGenerator.generate(
         suite_config,
         {
@@ -87,7 +87,7 @@ module InfernoPsSuiteGenerator
       )
     end
 
-    def generate_summary_operation_group
+    def generate_summary_operation_group(suite_config)
       GroupGenerator.generate(
         suite_config,
         {
@@ -104,7 +104,7 @@ module InfernoPsSuiteGenerator
       )
     end
 
-    def generate_summary_entries_group
+    def generate_summary_entries_group(suite_config)
       GroupGenerator.generate(
         suite_config,
         {
@@ -122,7 +122,7 @@ module InfernoPsSuiteGenerator
       )
     end
 
-    def generate_docref_group
+    def generate_docref_group(suite_config)
       GroupGenerator.generate(
         suite_config,
         {
@@ -139,7 +139,7 @@ module InfernoPsSuiteGenerator
       )
     end
 
-    def generate_suite(group_data)
+    def generate_suite(suite_config, group_data)
       SuiteGenerator.generate(
         suite_config,
         {
@@ -156,7 +156,7 @@ module InfernoPsSuiteGenerator
       )
     end
 
-    def generate_summary_operation_test
+    def generate_summary_operation_test(suite_config)
       StaticTestGenerator.generate(
         suite_config,
         {
@@ -174,7 +174,7 @@ module InfernoPsSuiteGenerator
       )
     end
 
-    def generate_summary_operation_return_bundle_test
+    def generate_summary_operation_return_bundle_test(suite_config)
       StaticTestGenerator.generate(
         suite_config,
         {
@@ -192,7 +192,7 @@ module InfernoPsSuiteGenerator
       )
     end
 
-    def generate_summary_operation_valid_composition_test
+    def generate_summary_operation_valid_composition_test(suite_config)
       StaticTestGenerator.generate(
         suite_config,
         {
