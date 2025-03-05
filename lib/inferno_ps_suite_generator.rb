@@ -31,55 +31,27 @@ module InfernoPsSuiteGenerator
 
     def generate
       puts "Generating tests for IG #{File.basename(ig_file_name)}"
-      group_data = []
       load_ig_package
       metadata = extract_metadata
-      StaticTestGenerator.generate(
-        suite_config,
-        {
-          title: 'Server declares support for $summary operation in CapabilityStatement',
-          description: 'The Server declares support for Patient/[id]/$summary operation in its server CapabilityStatement',
-          template: 'summary_operation_support.rb.erb',
-          file_name: 'au_ps_summary_operation_support',
-          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
-                                           'summary_operation_group'),
-          class_name: 'SummaryOperationSupport',
-          test_id: 'au_ps_summary_operation_support',
-          profile_url: 'http://hl7.org/fhir/uv/ips/OperationDefinition/summary',
-          module_name: suite_config[:test_kit_module_name]
-        }
-      )
-      StaticTestGenerator.generate(
-        suite_config,
-        {
-          title: 'Server returns Bundle resource for Patient/[id]/$summary GET operation',
-          description: 'Server returns a valid Bundle resource as successful result of $summary operation.',
-          template: 'summary_operation_return_bundle.rb.erb',
-          file_name: 'au_ps_summary_operation_return_bundle',
-          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
-                                           'summary_operation_group'),
-          class_name: 'SummaryOperationReturnBundle',
-          test_id: 'au_ps_summary_operation_return_bundle',
-          profile_url: 'http://hl7.org/fhir/uv/ips/StructureDefinition/Bundle-uv-ips',
-          module_name: suite_config[:test_kit_module_name]
-        }
-      )
-      StaticTestGenerator.generate(
-        suite_config,
-        {
-          title: 'Server returns Bundle resource containing valid Composition entry',
-          description: 'Server return valid Composition resource in the Bundle as first entry',
-          template: 'summary_operation_valid_composition.rb.erb',
-          file_name: 'au_ps_summary_operation_valid_composition',
-          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
-                                           'summary_operation_group'),
-          class_name: 'SummaryOperationValidComposition',
-          test_id: 'au_ps_summary_operation_valid_composition',
-          profile_url: 'http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips',
-          module_name: suite_config[:test_kit_module_name]
-        }
-      )
+      generate_summary_operation_tests
+      generate_docref_operation_tests
+      EntryTestGenerator.generate(metadata, suite_config[:output_path], suite_config)
+      generate_suite([generate_summary_operation_group, generate_summary_entries_group, generate_docref_group].flatten)
+    end
+
+    def generate_summary_operation_tests
+      generate_summary_operation_test
+      generate_summary_operation_return_bundle_test
+      generate_summary_operation_valid_composition_test
       CompositionSectionTestGenerator.generate(metadata, suite_config[:output_path], suite_config)
+    end
+
+    def generate_docref_operation_tests
+      generate_docref_exist
+      generate_docref_success_test
+    end
+
+    def generate_docref_exist
       StaticTestGenerator.generate(
         suite_config,
         {
@@ -95,6 +67,9 @@ module InfernoPsSuiteGenerator
           module_name: suite_config[:test_kit_module_name]
         }
       )
+    end
+
+    def generate_docref_success_test
       StaticTestGenerator.generate(
         suite_config,
         {
@@ -110,8 +85,10 @@ module InfernoPsSuiteGenerator
           module_name: suite_config[:test_kit_module_name]
         }
       )
-      EntryTestGenerator.generate(metadata, suite_config[:output_path], suite_config)
-      group_data << GroupGenerator.generate(
+    end
+
+    def generate_summary_operation_group
+      GroupGenerator.generate(
         suite_config,
         {
           title: '$summary Operation Tests',
@@ -125,7 +102,10 @@ module InfernoPsSuiteGenerator
           module_name: suite_config[:test_kit_module_name]
         }
       )
-      group_data << GroupGenerator.generate(
+    end
+
+    def generate_summary_entries_group
+      GroupGenerator.generate(
         suite_config,
         {
           title: '$summary Entries Tests',
@@ -140,7 +120,10 @@ module InfernoPsSuiteGenerator
           entries_is_group: true
         }
       )
-      group_data << GroupGenerator.generate(
+    end
+
+    def generate_docref_group
+      GroupGenerator.generate(
         suite_config,
         {
           title: '$docref Operation Tests',
@@ -154,7 +137,9 @@ module InfernoPsSuiteGenerator
           module_name: suite_config[:test_kit_module_name]
         }
       )
+    end
 
+    def generate_suite(group_data)
       SuiteGenerator.generate(
         suite_config,
         {
@@ -166,6 +151,60 @@ module InfernoPsSuiteGenerator
           suite_id: 'au_ps_suite',
           group_data: group_data,
           igs_str: suite_config[:igs],
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
+    end
+
+    def generate_summary_operation_test
+      StaticTestGenerator.generate(
+        suite_config,
+        {
+          title: 'Server declares support for $summary operation in CapabilityStatement',
+          description: 'The Server declares support for Patient/[id]/$summary operation in its server CapabilityStatement',
+          template: 'summary_operation_support.rb.erb',
+          file_name: 'au_ps_summary_operation_support',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'summary_operation_group'),
+          class_name: 'SummaryOperationSupport',
+          test_id: 'au_ps_summary_operation_support',
+          profile_url: 'http://hl7.org/fhir/uv/ips/OperationDefinition/summary',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
+    end
+
+    def generate_summary_operation_return_bundle_test
+      StaticTestGenerator.generate(
+        suite_config,
+        {
+          title: 'Server returns Bundle resource for Patient/[id]/$summary GET operation',
+          description: 'Server returns a valid Bundle resource as successful result of $summary operation.',
+          template: 'summary_operation_return_bundle.rb.erb',
+          file_name: 'au_ps_summary_operation_return_bundle',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'summary_operation_group'),
+          class_name: 'SummaryOperationReturnBundle',
+          test_id: 'au_ps_summary_operation_return_bundle',
+          profile_url: 'http://hl7.org/fhir/uv/ips/StructureDefinition/Bundle-uv-ips',
+          module_name: suite_config[:test_kit_module_name]
+        }
+      )
+    end
+
+    def generate_summary_operation_valid_composition_test
+      StaticTestGenerator.generate(
+        suite_config,
+        {
+          title: 'Server returns Bundle resource containing valid Composition entry',
+          description: 'Server return valid Composition resource in the Bundle as first entry',
+          template: 'summary_operation_valid_composition.rb.erb',
+          file_name: 'au_ps_summary_operation_valid_composition',
+          output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
+                                           'summary_operation_group'),
+          class_name: 'SummaryOperationValidComposition',
+          test_id: 'au_ps_summary_operation_valid_composition',
+          profile_url: 'http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips',
           module_name: suite_config[:test_kit_module_name]
         }
       )
