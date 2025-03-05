@@ -36,7 +36,9 @@ module InfernoPsSuiteGenerator
       generate_summary_operation_tests(metadata, suite_config)
       generate_docref_operation_tests(suite_config)
       EntryTestGenerator.generate(metadata, suite_config[:output_path], suite_config)
-      generate_suite(suite_config, [generate_summary_operation_group, generate_summary_entries_group, generate_docref_group].flatten)
+      generate_suite(suite_config, [generate_summary_operation_group(suite_config),
+                                    generate_summary_entries_group(suite_config),
+                                    generate_docref_group(suite_config)].flatten)
     end
 
     def generate_summary_operation_tests(metadata, suite_config)
