@@ -187,7 +187,7 @@ module InfernoPsSuiteGenerator
                                            'summary_operation_group'),
           class_name: 'SummaryOperationReturnBundle',
           test_id: 'au_ps_summary_operation_return_bundle',
-          profile_url: 'http://hl7.org/fhir/uv/ips/StructureDefinition/Bundle-uv-ips',
+          profile_url: 'http://hl7.org.au/fhir/ps/StructureDefinition/au-ps-bundle',
           module_name: suite_config[:test_kit_module_name]
         }
       )
@@ -205,7 +205,7 @@ module InfernoPsSuiteGenerator
                                            'summary_operation_group'),
           class_name: 'SummaryOperationValidComposition',
           test_id: 'au_ps_summary_operation_valid_composition',
-          profile_url: 'http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips',
+          profile_url: 'http://hl7.org.au/fhir/ps/StructureDefinition/au-ps-composition',
           module_name: suite_config[:test_kit_module_name]
         }
       )
