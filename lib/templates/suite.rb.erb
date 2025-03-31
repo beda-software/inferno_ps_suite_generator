@@ -28,7 +28,7 @@ module <%= module_name %>
 
       <% if tx_server_url %>
       cli_context do
-        txServer ENV.fetch('TX_SERVER_URL', <%= tx_server_url %>)
+        txServer ENV.fetch('TX_SERVER_URL', '<%= tx_server_url %>')
       end
       <% end %>
     end
