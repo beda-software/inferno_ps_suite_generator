@@ -65,7 +65,7 @@ module InfernoPsSuiteGenerator
                                            'docref_operation_group'),
           class_name: 'DocrefOperationSupport',
           test_id: 'au_ps_docref_operation_support',
-          profile_url: 'http://hl7.org/fhir/uv/ipa/OperationDefinition/docref',
+          profile_url: suite_config.dig(:specific_profiles, :docref_op),
           module_name: suite_config[:test_kit_module_name]
         }
       )
@@ -169,7 +169,7 @@ module InfernoPsSuiteGenerator
                                            'summary_operation_group'),
           class_name: 'SummaryOperationSupport',
           test_id: 'au_ps_summary_operation_support',
-          profile_url: 'http://hl7.org/fhir/uv/ips/OperationDefinition/summary',
+          profile_url: suite_config.dig(:specific_profiles, :summary_op),
           module_name: suite_config[:test_kit_module_name]
         }
       )
@@ -187,7 +187,7 @@ module InfernoPsSuiteGenerator
                                            'summary_operation_group'),
           class_name: 'SummaryOperationReturnBundle',
           test_id: 'au_ps_summary_operation_return_bundle',
-          profile_url: 'http://hl7.org.au/fhir/ps/StructureDefinition/au-ps-bundle',
+          profile_url: suite_config.dig(:specific_profiles, :ps_bundle),
           module_name: suite_config[:test_kit_module_name]
         }
       )
@@ -205,7 +205,7 @@ module InfernoPsSuiteGenerator
                                            'summary_operation_group'),
           class_name: 'SummaryOperationValidComposition',
           test_id: 'au_ps_summary_operation_valid_composition',
-          profile_url: 'http://hl7.org.au/fhir/ps/StructureDefinition/au-ps-composition',
+          profile_url: suite_config.dig(:specific_profiles, :ps_composition),
           module_name: suite_config[:test_kit_module_name]
         }
       )
