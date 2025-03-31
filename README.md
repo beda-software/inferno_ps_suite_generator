@@ -2,7 +2,7 @@
 
 A Ruby Gem provides a functionality to generate the Inferno test suite for IPS-like implementation guides.
 
-It generate 3 test groups
+It generates 3 test groups
 1. $summary operation tests
 2. $summary entries tests
 3. $docref operation tests
