@@ -25,6 +25,12 @@ module <%= module_name %>
 
     fhir_resource_validator do
       igs '<%= igs_str %>'
+
+      <% if tx_server_url %>
+      cli_context do
+        txServer ENV.fetch('TX_SERVER_URL', <%= tx_server_url %>)
+      end
+      <% end %>
     end
 
     <% test_list_ids.each do |test_id| %>
