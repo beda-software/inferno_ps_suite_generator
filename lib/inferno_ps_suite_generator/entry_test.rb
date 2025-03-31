@@ -50,7 +50,7 @@ module InfernoPsSuiteGenerator
       end
 
       def profile_identifier
-        title.gsub('(', '').gsub(')', '').gsub('/', '').gsub(' - ', ' ').gsub(' ', '_').downcase
+        title.gsub('(', '').gsub(')', '').gsub('/', '').gsub(' - ', ' ').gsub(' ', '_').gsub(':', '').downcase
       end
 
       def test_kit_module_name

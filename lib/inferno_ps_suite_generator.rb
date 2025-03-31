@@ -239,8 +239,6 @@ module InfernoPsSuiteGenerator
           sd_item = ig_resources.resources_by_type['StructureDefinition'].find do |sd|
             sd.url == profile
           end
-          puts profile
-          puts sd_item
           {
             profile: profile,
             resource_type: ig_resources.resources_by_type['StructureDefinition'].find do |sd|
