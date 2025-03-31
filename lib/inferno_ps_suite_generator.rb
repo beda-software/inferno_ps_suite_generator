@@ -153,7 +153,7 @@ module InfernoPsSuiteGenerator
           group_data: group_data,
           igs_str: suite_config[:igs],
           module_name: suite_config[:test_kit_module_name],
-          tx_server_url: suite_config.dig(:tx_server_url)
+          tx_server_url: suite_config[:tx_server_url]
         }
       )
     end

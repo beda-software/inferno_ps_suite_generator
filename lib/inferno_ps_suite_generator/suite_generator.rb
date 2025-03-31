@@ -60,6 +60,10 @@ module InfernoPsSuiteGenerator
         group_config[:description]
       end
 
+      def tx_server_url
+        group_config[:tx_server_url]
+      end
+
       def suite_id
         group_config[:suite_id]
       end
