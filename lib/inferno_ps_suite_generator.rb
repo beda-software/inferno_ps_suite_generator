@@ -57,6 +57,10 @@ module InfernoPsSuiteGenerator
       "#{suite_config[:test_id_prefix]}_#{str_to_add_prefix}"
     end
 
+    def ig_name(suite_config)
+      suite_config[:ig_human_name]
+    end
+
     def generate_docref_exist(suite_config)
       StaticTestGenerator.generate(
         suite_config,
@@ -98,7 +102,7 @@ module InfernoPsSuiteGenerator
         suite_config,
         {
           title: '$summary Operation Tests',
-          description: 'Verify support for the $summary operation as as described in the AU PS Guidance',
+          description: "Verify support for the $summary operation as as described in the #{ig_name(suite_config)} Guidance",
           template: 'summary_operation_group.rb.erb',
           file_name: add_prefix(suite_config, 'summary_operation_group'),
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
@@ -115,7 +119,7 @@ module InfernoPsSuiteGenerator
         suite_config,
         {
           title: '$summary Entries Tests',
-          description: 'A set of tests to check entries from $summary for read action and validate them according to profile specified in the AU PS Implementation Guide',
+          description: "A set of tests to check entries from $summary for read action and validate them according to profile specified in the #{ig_name(suite_config)} Implementation Guide",
           template: 'summary_operation_group.rb.erb',
           file_name: add_prefix(suite_config, 'entries_group'),
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
@@ -132,7 +136,7 @@ module InfernoPsSuiteGenerator
         suite_config,
         {
           title: '$docref Operation Tests',
-          description: 'Verify support for the $docref operation as as described in the AU PS Guidance',
+          description: "Verify support for the $docref operation as as described in the #{ig_name(suite_config)} Guidance",
           template: 'summary_operation_group.rb.erb',
           file_name: add_prefix(suite_config, 'docref_group'),
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version],
@@ -148,8 +152,8 @@ module InfernoPsSuiteGenerator
       SuiteGenerator.generate(
         suite_config,
         {
-          title: 'AU PS Inferno Suite',
-          description: 'AU PS Infenro Suite consist of $summary tests, $summary entries tests and $docref tests',
+          title: suite_config[:title],
+          description: "#{suite_config[:title]} consist of $summary tests, $summary entries tests and $docref tests",
           template: 'suite.rb.erb',
           file_name: add_prefix(suite_config, 'suite'),
           output_file_directory: File.join(suite_config[:output_path], 'generated', suite_config[:version]),
