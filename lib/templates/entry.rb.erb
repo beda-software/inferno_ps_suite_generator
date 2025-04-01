@@ -14,7 +14,7 @@ module <%= test_kit_module_name %>
 
     run do
       initial_bundle = resource
-      <% if profil_url %>
+      <% if profile_url %>
       existing_resources = initial_bundle.entry.map(&:resource).select do |r|
         r.resourceType == '<%= resource_type %>' && r.meta&.profile&.include?('<%= profile_url %>')
       end
@@ -30,7 +30,7 @@ module <%= test_kit_module_name %>
       skip_if existing_resources.empty?, "No existing resources of type '<%= resource_type %>' with profile '<%= profile_url %>' found."
 
       existing_resources.each do |r|
-        <% if profil_url %>
+        <% if profile_url %>
         assert_valid_resource(resource: r, profile_url: '<%= profile_url %>')
         <% else %>
         assert_valid_resource(resource: r)
