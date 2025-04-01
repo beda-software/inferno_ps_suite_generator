@@ -7,7 +7,9 @@ It generates 3 test groups
 2. $summary entries tests
 3. $docref operation tests
 
-You can check generated example for the AU PS IG here: https://github.com/hl7au/au-ps-inferno/tree/master/lib/au_ps_inferno/generated/0.1.0-preview
+Examples:
+1. AU PS Suite: https://github.com/hl7au/au-ps-inferno/tree/master/lib/au_ps_inferno/generated/0.1.0-preview
+2. IPS Suite: https://github.com/beda-software/inferno-ips-suite
 
 ## Usage example
 
