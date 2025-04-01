@@ -17,7 +17,8 @@ namespace :au_ps do
   task :generate do
     InfernoPsSuiteGenerator::Generator.generate(
       {
-        title: 'AU PS',
+        title: 'AU PS Inferno',
+        ig_human_name: 'AU PS',
         ig_identifier: 'hl7.fhir.au.ps',
         gem_name: 'au_ps_inferno',
         core_file_path: './lib/au_ps_inferno.rb',
